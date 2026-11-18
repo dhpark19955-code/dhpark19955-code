@@ -28,6 +28,23 @@
 
 **검증.** 발표가 나올 때마다 공식 명단을 `official_changes.csv` 에 넣으면 적중 대조표가 다시 만들어집니다. 2026-11-18 KOSPI200 발표는 '유력' 9건 중 8건 적중, MSCI 11월 리뷰는 변경 없음이었고 유력으로 잡았던 1건은 "MSCI 개별 판단으로 가능성 낮음"이라 메모해 둔 사례였습니다. 적중과 미적중을 똑같이 기록합니다.
 
+## 그 밖의 작업 (코드 비공개, 요청 시 설명 가능)
+
+업무 환경에 묶여 있어 저장소로 올리지 않은 것들입니다. 전부 위 두 저장소와 같은 규칙(숫자만·출처등급·검산·보고 형식)으로 만들었습니다.
+
+| 분야 | 무엇을 만들었나 | 포인트 |
+|---|---|---|
+| **재무모델 엔진** | DCF·프로젝션·SOTP·JV/프로젝트 수익 모델을 입력 yaml → 빌드 → 체크 → 린트 → 독립 재계산 순서로 만드는 파이썬 빌더 | 입력은 한 시트에만, 케이스 스위치, 수식 오류 0 과 항등식 통과를 자동 확인. 기존 수작업 DCF 3케이스를 소수 9자리까지 재현해 검증 |
+| **FP&A 모델** | 사업부별 관리손익, 신사업 BP(채굴 JV·게임), 비상장사 인수검토용 EV/EBITDA 모델 | Control 시트에 가정·설명·근거 열, 매크로 변수(물가·임금·환율·세율)와 재무 변수(할인율·조달) 분리, 미참조 입력 자동 점검 |
+| **투자지표 KPI 트래커** | 매크로·수출입·산업지표(KOSIS·관세청·ECOS·항공 통계)와 기업별 KPI 를 주기 수집해 Google 시트로 | 10일 잠정치·전 품목 스캔, 통계마다 다른 기준(인구이동 vs 관광 등) 혼용 금지 규칙 |
+| **공시 모니터** | DART 지분·이사회·주요사항 공시를 추적해 경영권·행동주의 이슈를 정리 | 대량보유 원문에서 취득 단가·담보 파싱, 보유/소유 기준 차이와 분모(발행총수/의결권)를 병기, 개인명 마스킹 |
+| **스크리닝 파이프라인** | 섹터 유니버스 확장(동명 법인 판별), M&A 예비후보 통합, 거래정지·관리종목 플래그 | 스크리닝 리스트엔 거래 가능 여부부터 붙임, 시총 하한·Net cash·TTM 정의를 문서화 |
+| **리서치 MCP 서버** | DART·SEC·IR(Q4 피드)·시세·컨센서스 조회 도구 30개를 Claude Code/Desktop 에서 대화 중 바로 부르는 MCP 서버(Node) | 키는 단일 키 파일에서만, 자가진단 스크립트, 설치기로 다른 PC 이식 |
+| **대시보드** | 상장·비상장·펀드·현금 자산현황을 날짜별 xlsx → Google 시트 라이브로 | 기준일 수식 참조·검증 통과 전 업로드 금지, 미갱신 값은 이월하지 않고 공란 + 표시 |
+| **문서·발표 자동화** | 미팅노트 Word 서식, 주간 이슈 1페이지 IB 형, PPT 글꼴·출처 줄·문체 규칙을 스킬로 | 수치는 모델·데이터셋에서 직접 읽어 생성, 손으로 옮겨 적지 않음 |
+| **채용공고 수집기** | 투자직 공고를 협회·커뮤니티·채용 플랫폼 4곳에서 모아 직무 분류 | Next.js RSC JSON 파싱, 제목 정규식 분류, robots·개인정보 규정 준수(이름·연락처 수집 안 함) |
+| **이식 패키지** | 위 도구들을 다른 PC 에 설치하는 패키지 4종(설치 스크립트·doctor·README) | 키 값 없이 배포, 가짜 HOME 으로 설치 시험, Windows 설치기 함정 6개 기록 |
+
 ## 일하는 방식
 
 - **숫자와 줄글을 분리** - 데이터셋 xlsx 는 숫자만(파랑 입력·검정 수식·초록 링크), 원문은 front matter 를 붙인 md 아카이브로
@@ -39,4 +56,6 @@
 
 ## 도구
 
-Python (requests · pandas · openpyxl · pdfplumber · yfinance) · SQL (SQLite · DuckDB) · Excel COM · OpenDART · SEC EDGAR XBRL · 네이버증권 API · Yahoo Finance · ETF 보유종목 공시(iShares · Vanguard · KODEX · SPDR) · GitHub Pages / Actions
+- **언어·DB**: Python (requests · pandas · openpyxl · pdfplumber · yfinance · pywin32) · SQL (SQLite · DuckDB) · Node.js (MCP 서버)
+- **데이터 원천**: OpenDART · DART/KIND 공시 원문 · SEC EDGAR (companyfacts · XBRL 인스턴스 · 8-K/6-K 첨부) · Q4 IR 피드 · 네이버증권 API · Yahoo Finance · ETF 보유종목 공시(iShares · Vanguard · KODEX · SPDR) · FINRA · KOSIS · ECOS · 관세청
+- **산출·운영**: Excel COM 재계산 · Google Sheets · 정적 HTML 대시보드(GitHub Pages / Actions) · Word/PowerPoint 자동 생성 · Claude Code 스킬·MCP · Windows 설치 스크립트
